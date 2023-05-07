@@ -9,7 +9,6 @@
 //! To specify ffmpeg arguments, use `--` to separate the files from the arguments.
 
 use std::collections::{HashSet};
-use std::iter::Peekable;
 use std::env;
 use std::ffi::OsString;
 use std::process::{Command, Stdio};
@@ -27,25 +26,20 @@ fn main() {
     }
 
     // let audio_file: String = args.skip(1).next().unwrap();
-    let mut args: Peekable<env::Args> = env::args().peekable();
+    let mut args = env::args().skip(1);
     
-    args.next(); // Skip the path argument
-
     let mut audio_file: Option<OsString> = None;
     let mut image_file: Option<OsString> = None;
 
-    // Check if files are provided is provided
+    // Check if files are provided
     while let Some(arg) = args.next() {
-        println!("current arg: {:?}", arg);
         if arg == "--" { break; }
         
         let file_extension = arg.split(".").last().unwrap();
 
         if audio_formats.contains(file_extension) {
-            println!("audio file found");
             audio_file = Some(OsString::from(arg));
         } else if image_formats.contains(file_extension) {
-            println!("image file found");
             image_file = Some(OsString::from(arg));
         }
     }
@@ -73,7 +67,7 @@ fn main() {
 
     // Get Output File Name
     let file_name: &str = audio_file.as_ref().unwrap().to_str().unwrap_or("default").split(".").next().unwrap();
-    let output_file = format!{"{}{}", file_name,".mp4"};
+    let output_file = format!{"{}.mp4", file_name};
 
     //Create the ffmpeg command
     let mut command = Command::new("ffmpeg");
